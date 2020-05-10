@@ -1,0 +1,7 @@
+Prepare your Raspbery PI and run Azure CLI
+Install Git and Docker
+Git installation command
+sudo apt-get install git
+
+Docker installation command
+curl -sSL https://get.docker.com | sh
