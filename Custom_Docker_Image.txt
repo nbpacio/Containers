@@ -1,0 +1,153 @@
+How to Build, Push and Pull Container Images:
+
+
+BUILD:
+
+1. Build Locally
+2. Use Docker Hub - download from Docker Hub or any Container Repositories
+
+
+Local Build:
+
+1. Create Build Folder:
+
+mkdir mywhale
+
+2. Go inside build folder:
+
+cd mywhale
+
+3. Create Dockerfile:
+
+touch Dockerfile
+
+$ ll
+total 8.0K
+-rw-rw-r-- 1 user user 0 23:26 Dockerfile
+
+
+4. Edit Dockerfile and put sample script below (or customized script):
+
+FROM docker/whalesay:latest
+RUN apt -y update && apt -y install fortunes
+CMD /usr/games/fortune -a | cowsay
+
+
+
+
+# FROM docker/whalesay:latest  < ======== base image
+# RUN apt -y update && apt -y install fortunes  < ======= update and install an application
+# CMD /usr/games/fortune -a | cowsay <======= run the following commands
+
+
+
+5. Build the Docker Image
+
+docker build -t my-docker-whale .
+
+
+# my-docker-whale <---- name of your image
+# do not forget the period <.> at the end of command
+
+6. Display Created Image
+
+docker images
+
+
+[root@redhat-vm ~]# docker images
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+my-docker-whale             latest              d47b9837fcfd        53 minutes ago      278 MB  <------ created image
+docker.io/docker/whalesay   latest              6b362a9f73eb        4 years ago         247 MB  <------ source image (auto download)
+[root@redhat-vm ~]#
+
+7. Run Your Docker Image
+
+
+[root@redhat-vm ~]# docker run my-docker-whale
+ ________________________________________
+/ Why is it that when you DIE, you can't \
+| take your HOME ENTERTAINMENT CENTER    |
+\ with you??                             /
+ ----------------------------------------
+    \
+     \
+      \
+                    ##        .
+              ## ## ##       ==
+           ## ## ## ##      ===
+       /""""""""""""""""___/ ===
+  ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~
+       \______ o          __/
+        \    \        __/
+          \____\______/
+[root@redhat-vm ~]#
+
+
+
+PUBLISHING CUSTOME IMAGE on DOCKER HUB:
+
+
+1. Tag you Image
+
+docker tag d47b9837fcfd accountname/my-docker-whale:latest
+
+
+# d47b9837fcfd - IMAGE ID
+# accountname - docker account name
+
+2. Login to Docker
+
+docker login --username=yourhubusername
+
+3. Push Your Image
+
+docker push accountname/my-docker-whale
+
+
+NOTE:
+In Redhat, if push fails and you get the following errors:
+
+[root@redhat-vm mywhale]# docker push accountname/my-docker-whale
+The push refers to a repository [registry.access.redhat.com/nbpacio/my-docker-whale]
+c73854ae52e2: Preparing                                                                                                               5f70bf18a086: Preparing                                                                                                               d061ee1340ec: Preparing                                                                                                               d511ed9e12e1: Preparing                                                                                                               091abc5148e4: Preparing                                                                                                               b26122d57afa: Waiting                                                                                                                 37ee47034d9b: Waiting                                                                                                                 528c8710fd95: Waiting                                                                                                                 1154ba695078: Waiting                                                                                                                 error parsing HTTP 403 response body: invalid
+
+
+Just edit /etc/containers/registries.conf and remove registry.access.redhat.com or move it at the end.
+
+[registries.search]
+registries = ['docker.io', 'registry.fedoraproject.org', 'quay.io', 'registry.centos.org']
+
+or 
+
+[registries.search]
+registries = ['docker.io', 'registry.fedoraproject.org', 'quay.io', 'registry.centos.org', 'registry.access.redhat.com']
+
+
+
+DOWNLOADING/PULLING YOUR CUSTOM IMAGE:
+
+1. As you remember from the previous part, to remove a docker image, you must run the "docker rmi" command. You can use an ID or the name to remove an image. If your pulling it from a different machine, no need to do the below just proceed with 2:
+
+docker rmi -f a69f3f5e1a31
+
+2. docker run accountname/my-docker-whale   <----- download and run
+
+   or
+
+   docker pull accountname/my-docker-whale  <----- download
+
+
+
+IMAGES TYPES:
+
+[root@redhat-vm ~]# docker images
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+nbpacio/my-docker-whale     latest              d47b9837fcfd        53 minutes ago      278 MB  <------ tagged image
+my-docker-whale             latest              d47b9837fcfd        53 minutes ago      278 MB  <------ created image
+docker.io/docker/whalesay   latest              6b362a9f73eb        4 years ago         247 MB  <------ source image (auto download)
+[root@redhat-vm ~]#
+
+
+SOURCES:
+
+https://www.howtoforge.com/tutorial/building-and-publishing-custom-docker-images/
